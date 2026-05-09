@@ -20,10 +20,14 @@ console.log("DB Hash:", admin.password);
 
     const token = jwt.sign({ id: admin.id, email: admin.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, admin: { id: admin.id, email: admin.email } });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
+  }catch (err) {
+  console.error(err);
+
+  res.status(500).json({
+    message: 'Server error',
+    error: err.message
+  });
+}
 };
 
 exports.changePassword = async (req, res) => {
