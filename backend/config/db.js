@@ -23,7 +23,7 @@ setInterval(async () => {
   } catch (err) {
     console.error('DB Ping Failed:', err.message);
   }
-}, 5 * 60 * 1000); // every 5 minutes
+}, 5 * 60 * 1000);
 
 // ─── Schema init ──────────────────────────────────────────────────────────────
 async function initDB() {
@@ -129,24 +129,23 @@ async function initDB() {
       )
     `);
 
-    // ── Indexes (IF NOT EXISTS not supported on older MySQL, so we ignore duplicate key errors)
-    const indexes = [
+    // ── Indexes (try/catch because CREATE INDEX has no IF NOT EXISTS on older MySQL)
+    for (const sql of [
       'CREATE INDEX idx_orders_rp_order_id ON orders (razorpay_order_id)',
       'CREATE INDEX idx_pss_product ON product_size_stock (product_id)',
-    ];
-    for (const sql of indexes) {
-      try { await conn.query(sql); } catch (e) { /* index already exists — safe to ignore */ }
+    ]) {
+      try { await conn.query(sql); } catch (_) { /* already exists — skip */ }
     }
 
     // ── Seed: settings ──────────────────────────────────────────────────────
     await conn.query(`
       INSERT INTO settings (setting_key, setting_value) VALUES
-        ('shop_name',         "Women's Choice"),
-        ('shop_phone',        '7010354442'),
-        ('shop_tagline',      'Style that speaks to you'),
-        ('upi_id',            ''),
-        ('qr_image_url',      ''),
-        ('qr_image_public_id','')
+        ('shop_name',          "Women's Choice"),
+        ('shop_phone',         '7010354442'),
+        ('shop_tagline',       'Style that speaks to you'),
+        ('upi_id',             ''),
+        ('qr_image_url',       ''),
+        ('qr_image_public_id', '')
       ON DUPLICATE KEY UPDATE setting_key = setting_key
     `);
 
@@ -157,7 +156,7 @@ async function initDB() {
       ON DUPLICATE KEY UPDATE name = name
     `);
 
-    // ── Seed: default admin ─────────────────────────────────────────────────
+    // ── Seed: default admin (password: admin123) ─────────────────────────────
     await conn.query(`
       INSERT INTO admins (email, password) VALUES
         ('admin@shop.com', '$2a$10$kokih.oO2lhA0G0Usb.tVeKEfU0iLYzYRZgYpdWYREEGZXYnQvX8C')
