@@ -1,24 +1,26 @@
 const express = require('express');
 const cors = require('cors');
-// const db = require("./db");
+const { initDB } = require('./config/db'); // ← adjust path if your db.js is elsewhere
 require('dotenv').config();
 
 const app = express();
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
+app.use('/api/orders',   require('./routes/orders'));
 app.use('/api/settings', require('./routes/settings'));
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
+app.get('/api/health', (req, res) =>
+  res.json({ status: 'ok', timestamp: new Date() })
+);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -26,4 +28,13 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+// ── Boot: init DB first, then start listening ─────────────────────────────────
+initDB()
+  .then(() => {
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  })
+  .catch(err => {
+    console.error('❌ Failed to initialise DB:', err.message);
+    process.exit(1);
+  });
