@@ -129,13 +129,14 @@ async function initDB() {
       )
     `);
 
-    // ── Indexes ─────────────────────────────────────────────────────────────
-    await conn.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_rp_order_id ON orders (razorpay_order_id)
-    `);
-    await conn.query(`
-      CREATE INDEX IF NOT EXISTS idx_pss_product ON product_size_stock (product_id)
-    `);
+    // ── Indexes (IF NOT EXISTS not supported on older MySQL, so we ignore duplicate key errors)
+    const indexes = [
+      'CREATE INDEX idx_orders_rp_order_id ON orders (razorpay_order_id)',
+      'CREATE INDEX idx_pss_product ON product_size_stock (product_id)',
+    ];
+    for (const sql of indexes) {
+      try { await conn.query(sql); } catch (e) { /* index already exists — safe to ignore */ }
+    }
 
     // ── Seed: settings ──────────────────────────────────────────────────────
     await conn.query(`
