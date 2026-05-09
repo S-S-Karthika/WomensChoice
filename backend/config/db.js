@@ -138,16 +138,21 @@ async function initDB() {
     }
 
     // ── Seed: settings ──────────────────────────────────────────────────────
-    await conn.query(`
-      INSERT INTO settings (setting_key, setting_value) VALUES
-        ('shop_name',          "Women's Choice"),
-        ('shop_phone',         '7010354442'),
-        ('shop_tagline',       'Style that speaks to you'),
-        ('upi_id',             ''),
-        ('qr_image_url',       ''),
-        ('qr_image_public_id', '')
-      ON DUPLICATE KEY UPDATE setting_key = setting_key
-    `);
+    // ── Seed: settings ──────────────────────────────────────────────────────
+const seedSettings = [
+  ['shop_name',          "Women's Choice"],
+  ['shop_phone',         '7010354442'],
+  ['shop_tagline',       'Style that speaks to you'],
+  ['upi_id',             ''],
+  ['qr_image_url',       ''],
+  ['qr_image_public_id', ''],
+];
+for (const [key, value] of seedSettings) {
+  await conn.query(
+    'INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_key = setting_key',
+    [key, value]
+  );
+}
 
     // ── Seed: categories ────────────────────────────────────────────────────
     await conn.query(`
