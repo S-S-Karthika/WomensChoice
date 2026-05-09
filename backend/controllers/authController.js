@@ -38,7 +38,12 @@ exports.changePassword = async (req, res) => {
     const hashed = await bcrypt.hash(newPassword, 10);
     await pool.query('UPDATE admins SET password = ? WHERE id = ?', [hashed, req.admin.id]);
     res.json({ message: 'Password updated successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
+  }catch (err) {
+  console.error(err);
+
+  res.status(500).json({
+    message: 'Server error',
+    error: err.message
+  });
+}
 };
