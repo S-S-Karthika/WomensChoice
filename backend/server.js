@@ -8,7 +8,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://womens-choice-one.vercel.app'
+    'https://womens-choice-one.vercel.app/api'
   ],
   credentials: true,
 }));
