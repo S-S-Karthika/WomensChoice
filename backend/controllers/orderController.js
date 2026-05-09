@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const {pool} = require('../config/db');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
