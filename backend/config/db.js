@@ -42,15 +42,15 @@ async function initDB() {
 
     // ── categories ──────────────────────────────────────────────────────────
     await conn.query(`
-      CREATE TABLE IF NOT EXISTS categories (
-        id               INT AUTO_INCREMENT PRIMARY KEY,
-        name             VARCHAR(100) NOT NULL,
-        description      TEXT         DEFAULT NULL,
-        image_url        VARCHAR(500) DEFAULT NULL,
-        image_public_id  VARCHAR(255) DEFAULT NULL,
-        created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+  CREATE TABLE IF NOT EXISTS categories (
+    id               INT AUTO_INCREMENT PRIMARY KEY,
+    name             VARCHAR(100) NOT NULL UNIQUE,   // 👈 Add UNIQUE here
+    description      TEXT         DEFAULT NULL,
+    image_url        VARCHAR(500) DEFAULT NULL,
+    image_public_id  VARCHAR(255) DEFAULT NULL,
+    created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
     // ── products ────────────────────────────────────────────────────────────
     await conn.query(`
